@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  profile   Profile?
+  roadmaps  Roadmap[]
+  resumes   Resume[]
+}
+
+model Profile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  targetRole     String?
+  readinessScore Int?     @default(0)
+  experience     String?  // JSON string or text block describing experience
+  projects       String?  // JSON string or text block describing projects
+  education      String?  // JSON string or text block describing education
+  certifications String?  // JSON string or text block describing certifications
+  currentSkills  String   // JSON string or comma separated array of current skills
+  missingSkills  String   // JSON string or comma separated array of skills missing for target role
+  matchScore     Int?     @default(0) // Match score % for target role
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Roadmap {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  targetRole  String
+  content     String   // JSON string representing the weekly plan
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Resume {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  targetRole String
+  content    String   // Generated markdown or JSON
+  isAtsOptimized Boolean @default(true)
+  createdAt  DateTime @default(now())
+}
